@@ -16,12 +16,8 @@ class GenreSerializer(serializers.ModelSerializer):
     gen_name = serializers.CharField()
     category = serializers.ReadOnlyField(source='category.cat_name')
 
-        # def get_is_owner(self, obj):
-        # request = self.context['request']
-        # return request.user == obj.profile.owner
-
     class Meta:
         model = Genre
         fields = [
-            'id', 'gen_name', 'gen_name_text', 'category'
+            'id', 'gen_name', 'category'
         ]

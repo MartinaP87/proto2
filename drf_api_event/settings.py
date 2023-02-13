@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'profiles',
     'categories',
+    'events',
 ]
 
 MIDDLEWARE = [

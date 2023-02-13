@@ -7,7 +7,17 @@ from .models import Category, Genre
 from .serializers import CategorySerializer, GenreSerializer
 
 
-class CategoryList(generics.ListAPIView):
+class CategoryList(generics.ListCreateAPIView):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+    def perform_create(self, serializer):
+        if self.request.user.is_superuser:
+            return serializer.save()
+
+
+class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
@@ -17,33 +27,7 @@ class GenreList(generics.ListAPIView):
     queryset = Genre.objects.all()
 
 
-class CategoryDetail(generics.RetrieveAPIView):
-    serializer_class = CategorySerializer
-    queryset = Genre.objects.all()
-
-
 class GenreDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
-
-    # def get_object(self, pk):
-    #     try:
-    #         category = Category.objects.get(pk=pk)
-    #         return category
-    #     except Category.DoesNotExist:
-    #         raise Http404
-
-    # def get(self, request, pk):
-    #     category = self.get_object(pk)
-    #     serializer = CategorySerializer(category)
-    #     return Response(serializer.data)
-
-    # def put(self, request, pk):
-    #     category = self.get_object(pk)
-    #     serializer = CategorySerializer(category, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
