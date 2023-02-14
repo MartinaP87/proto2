@@ -38,9 +38,23 @@ class Photo(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='images/')
 
+    def __str__(self):
+        return self.title
+
+
+class EventGenre(models.Model):
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='event_genres')
+    genre = models.ForeignKey(
+        Genre, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.genre.gen_name
+
 
 def create_gallery(sender, instance, created, **kwargs):
     if created:
         Gallery.objects.create(posted_event=instance)
+
 
 post_save.connect(create_gallery, sender=Event)

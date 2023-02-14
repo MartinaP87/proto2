@@ -8,4 +8,6 @@ urlpatterns = [
     path('events/galleries/<int:pk>', views.GalleryDetail.as_view()),
     path('events/galleries/photos', views.PhotoList.as_view()),
     path('events/galleries/photos/<int:pk>', views.PhotoDetail.as_view()),
+    path('events/genres', views.EventGenreList.as_view()),
+    path('events/genres/<int:pk>', views.EventGenreDetail.as_view()),
 ]
