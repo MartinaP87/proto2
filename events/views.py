@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics, permissions
+from rest_framework import status, generics, permissions, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_api_event.permissions import IsOwnerOrReadOnly, IsEventOwnerOrReadOnly
 from drf_api_event.permissions import IsGalleryOwnerOrReadOnly
 from .models import Event, Gallery, Photo, EventGenre
@@ -53,15 +55,17 @@ class PhotoDetail(generics.RetrieveUpdateDestroyAPIView):
 class EventGenreList(generics.ListCreateAPIView):
     serializer_class = EventGenreSerializer
     queryset = EventGenre.objects.all()
-    print('QUERY', queryset[0].event.category)
-    print('QUERY2', queryset[0].genre.category)
 
     def perform_create(self, serializer):
+        if (self.request.user != serializer.validated_data['event'].owner):
+            raise ValidationError(
+                "You cannot add a genre to somone else event")
         if serializer.validated_data[
-        'event'].category == serializer.validated_data['genre'].category:
-            serializer.save()
-        else:
-            serializer.save()
+            'event'].category != serializer.validated_data['genre'].category:
+            raise ValidationError(
+                "You can't add a genre of a different event's category"
+            )
+        serializer.save()
 
 
 class EventGenreDetail(generics.RetrieveUpdateDestroyAPIView):
