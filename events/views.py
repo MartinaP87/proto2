@@ -61,7 +61,7 @@ class EventGenreList(generics.ListCreateAPIView):
             raise ValidationError(
                 "You cannot add a genre to somone else event")
         if serializer.validated_data[
-            'event'].category != serializer.validated_data['genre'].category:
+         'event'].category != serializer.validated_data['genre'].category:
             raise ValidationError(
                 "You can't add a genre of a different event's category"
             )
