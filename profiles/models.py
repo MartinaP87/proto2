@@ -21,7 +21,8 @@ class Profile(models.Model):
 
 
 class Interest(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='preferences')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     def __str__(self):

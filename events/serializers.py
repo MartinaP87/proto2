@@ -7,6 +7,9 @@ class EventSerializer(serializers.ModelSerializer):
     event_genres = serializers.StringRelatedField(many=True)
     owner = serializers.ReadOnlyField(source='owner.username')
     is_owner = serializers.SerializerMethodField()
+    comments_count = serializers.ReadOnlyField()
+    interested_count = serializers.ReadOnlyField()
+    goings_count = serializers.ReadOnlyField()
 
     def get_is_owner(self, obj):
         request = self.context['request']
@@ -17,8 +20,8 @@ class EventSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'owner', 'category', 'title', 'date',
             'location', 'address', 'created_at', 'updated_at',
-            'content', 'image', 'is_owner',
-            'event_genres'
+            'content', 'image', 'is_owner', 'event_genres',
+            'comments_count', 'interested_count', 'goings_count'
         ]
 
 

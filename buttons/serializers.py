@@ -23,11 +23,17 @@ class InterestedSerializer(serializers.ModelSerializer):
 
 class GoingSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
+    event_name = serializers.SerializerMethodField()
+
+    def get_event_name(self, obj):
+        return obj.posted_event.title
 
     class Meta:
         model = Going
         fields = [
-            'id', 'owner', 'posted_event', 'created_at'
+            'id', 'owner', 'posted_event', 'event_name',
+            'created_at'
+            
         ]
 
     def create(self, validated_data):
@@ -37,6 +43,7 @@ class GoingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'detail': 'possible duplicate'
             })
+
 
 class LikeSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField()
