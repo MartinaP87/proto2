@@ -39,8 +39,22 @@ class GallerySerializer(serializers.ModelSerializer):
 
 class PhotoSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
-    gallery = serializers.ReadOnlyField(source='gallery.name')
     is_owner = serializers.SerializerMethodField()
+
+    def validate_image(self, value):
+        if value.size > 1024 * 1024 * 2:
+            raise serializers.ValidationError(
+                'image size larger than 2MB!'
+            )
+        if value.image.width > 4096:
+            raise serializers.ValidationError(
+                'image width larger than 4094px!'
+            )
+        if value.image.height > 4096:
+            raise serializers.ValidationError(
+                'image height larger than 4094px!'
+            )
+        return value
 
     def get_is_owner(self, obj):
         request = self.context['request']
@@ -52,6 +66,14 @@ class PhotoSerializer(serializers.ModelSerializer):
             'id', 'gallery', 'owner', 'title',
             'created_at', 'image', 'is_owner'
         ]
+
+
+class PhotoDetailSerializer(PhotoSerializer):
+    """
+    Serializer for the EventGenre model used in Detail view
+    event is a read only field so that we dont have to set it on each update
+    """
+    gallery = serializers.ReadOnlyField(source='gallery.id')
 
 
 class EventGenreSerializer(serializers.ModelSerializer):
@@ -72,6 +94,13 @@ class EventGenreSerializer(serializers.ModelSerializer):
     def get_event_category(self, obj):
         return obj.event.category.cat_name
 
+    # def validate(self, value):
+    #     if value['event'].category != value['genre'].category:
+    #         raise serializers.ValidationError(
+    #             'The event catogory and its genre category must match'
+    #         )
+    #     return value
+
     class Meta:
         model = EventGenre
         fields = [
@@ -79,3 +108,11 @@ class EventGenreSerializer(serializers.ModelSerializer):
             'event_title', 'genre_name',
             'genre_category', 'event_category'
         ]
+
+
+class EventGenreDetailSerializer(EventGenreSerializer):
+    """
+    Serializer for the EventGenre model used in Detail view
+    event is a read only field so that we dont have to set it on each update
+    """
+    event = serializers.ReadOnlyField(source='event.id')

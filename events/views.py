@@ -7,8 +7,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_api_event.permissions import IsOwnerOrReadOnly, IsEventOwnerOrReadOnly
 from drf_api_event.permissions import IsGalleryOwnerOrReadOnly
 from .models import Event, Gallery, Photo, EventGenre
-from .serializers import EventSerializer, GallerySerializer, PhotoSerializer
-from .serializers import EventGenreSerializer
+from .serializers import EventSerializer, GallerySerializer
+from .serializers import PhotoSerializer, PhotoDetailSerializer
+from .serializers import EventGenreSerializer, EventGenreDetailSerializer
 
 
 class EventList(generics.ListCreateAPIView):
@@ -48,7 +49,7 @@ class PhotoList(generics.ListCreateAPIView):
 
 class PhotoDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
-    serializer_class = PhotoSerializer
+    serializer_class = PhotoDetailSerializer
     queryset = Photo.objects.all()
 
 
@@ -70,5 +71,5 @@ class EventGenreList(generics.ListCreateAPIView):
 
 class EventGenreDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsEventOwnerOrReadOnly]
-    serializer_class = EventGenreSerializer
+    serializer_class = EventGenreDetailSerializer
     queryset = EventGenre.objects.all()

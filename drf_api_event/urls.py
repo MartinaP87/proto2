@@ -9,4 +9,5 @@ urlpatterns = [
     path('', include('events.urls')),
     path('', include('buttons.urls')),
     path('', include('comments.urls')),
+    path('', include('followers.urls')),
 ]

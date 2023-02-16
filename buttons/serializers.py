@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db import IntegrityError
-from .models import Interested, Going
+from .models import Interested, Going, Like
 
 
 class InterestedSerializer(serializers.ModelSerializer):
@@ -27,7 +27,24 @@ class GoingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Going
         fields = [
-            'id', 'owner', 'posted_event', 'created_at',
+            'id', 'owner', 'posted_event', 'created_at'
+        ]
+
+    def create(self, validated_data):
+        try:
+            return super().create(validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError({
+                'detail': 'possible duplicate'
+            })
+
+class LikeSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Like
+        fields = [
+            'id', 'owner', 'comment', 'created_at'
         ]
 
     def create(self, validated_data):

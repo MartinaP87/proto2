@@ -24,11 +24,11 @@ class Event(models.Model):
 
 
 class Gallery(models.Model):
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, default="Gallery")
     posted_event = models.OneToOneField(Event, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"{self.posted_event} {self.name}"
 
 
 class Photo(models.Model):
@@ -39,7 +39,7 @@ class Photo(models.Model):
     image = models.ImageField(upload_to='images/')
 
     def __str__(self):
-        return self.title
+        return f"{self.title}"
 
 
 class EventGenre(models.Model):
