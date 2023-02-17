@@ -21,7 +21,8 @@ class ProfileList(generics.ListAPIView):
         DjangoFilterBackend
     ]
     filterset_fields = [
-        'owner__followig__followed__profile'
+        'owner__followig__followed__profile',
+        'owner__followed__owner__profile'
     ]
     orderin_fields = [
         'events_count',

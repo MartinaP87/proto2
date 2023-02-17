@@ -37,7 +37,7 @@ class EventList(generics.ListCreateAPIView):
         'goings__owner__profile',
         'owner__profile'
     ]
-    orderin_fields = [
+    ordering_fields = [
         'comments_count',
         'interested_count',
         'goings_count'
@@ -72,6 +72,15 @@ class PhotoList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = PhotoSerializer
     queryset = Photo.objects.all()
+
+    filter_backends = [
+        DjangoFilterBackend
+    ]
+    filterset_fields = [
+        'owner__profile',
+        'gallery__posted_event',
+        'owner__followed__owner__profile'
+    ]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
