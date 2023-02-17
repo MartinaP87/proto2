@@ -6,6 +6,6 @@ urlpatterns = [
     path('interested/<int:pk>/', views.InterestedDetail.as_view()),
     path('going/', views.GoingList.as_view()),
     path('going/<int:pk>/', views.GoingDetail.as_view()),
-    path('like/', views.LikeList.as_view()),
-    path('like/<int:pk>/', views.LikeDetail.as_view())
+    path('likes/', views.LikeList.as_view()),
+    path('likes/<int:pk>/', views.LikeDetail.as_view())
     ]

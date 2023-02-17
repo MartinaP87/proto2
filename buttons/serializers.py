@@ -33,7 +33,6 @@ class GoingSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'owner', 'posted_event', 'event_name',
             'created_at'
-            
         ]
 
     def create(self, validated_data):
@@ -46,7 +45,7 @@ class GoingSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField()
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Like

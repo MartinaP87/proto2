@@ -6,7 +6,8 @@ from comments.models import Comment
 
 class Interested(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    posted_event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    posted_event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='interesteds')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -19,7 +20,8 @@ class Interested(models.Model):
 
 class Going(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    posted_event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    posted_event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='goings')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -32,7 +34,8 @@ class Going(models.Model):
 
 class Like(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

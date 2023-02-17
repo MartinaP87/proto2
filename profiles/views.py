@@ -8,7 +8,7 @@ from drf_api_event.permissions import IsOwnerOrReadOnly
 from drf_api_event.permissions import IsProfileOwnerOrReadOnly
 
 
-class ProfileList(generics.ListCreateAPIView):
+class ProfileList(generics.ListAPIView):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.annotate(
         events_count=Count('owner__event', distinct=True),
@@ -45,6 +45,7 @@ class InterestList(generics.ListCreateAPIView):
 
 
 class InterestDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsProfileOwnerOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly, IsProfileOwnerOrReadOnly]
     queryset = Interest.objects.all()
     serializer_class = InterestSerializer

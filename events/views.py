@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework import status, generics, permissions, filters
@@ -16,11 +17,25 @@ class EventList(generics.ListCreateAPIView):
     serializer_class = EventSerializer
     queryset = Event.objects.annotate(
         comments_count=Count('comment', distinct=True),
-        interested_count=Count('interested', distinct=True),
-        goings_count=Count('going', distinct=True)
+        interested_count=Count('interesteds', distinct=True),
+        goings_count=Count('goings', distinct=True)
     ).order_by('-created_at')
+
     filter_backends = [
-        filters.OrderingFilter
+        filters.OrderingFilter,
+        filters.SearchFilter,
+        DjangoFilterBackend
+    ]
+    search_fields = [
+        'owner__username',
+        'title',
+        'date'
+    ]
+    filterset_fields = [
+        'owner__followed__owner__profile',
+        'interesteds__owner__profile',
+        'goings__owner__profile',
+        'owner__profile'
     ]
     orderin_fields = [
         'comments_count',
@@ -37,8 +52,8 @@ class EventDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EventSerializer
     queryset = Event.objects.annotate(
         comments_count=Count('comment', distinct=True),
-        interested_count=Count('interested', distinct=True),
-        goings_count=Count('going', distinct=True)
+        interested_count=Count('interesteds', distinct=True),
+        goings_count=Count('goings', distinct=True)
     ).order_by('-created_at')
 
 
