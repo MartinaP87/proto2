@@ -35,7 +35,9 @@ class EventList(generics.ListCreateAPIView):
         'owner__followed__owner__profile',
         'interesteds__owner__profile',
         'goings__owner__profile',
-        'owner__profile'
+        'owner__profile',
+        'category',
+        'event_genres__genre'
     ]
     ordering_fields = [
         'comments_count',

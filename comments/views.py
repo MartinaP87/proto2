@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
 from drf_api_event.permissions import IsOwnerOrReadOnly
 from .models import Comment
@@ -15,9 +16,14 @@ class CommentList(generics.ListCreateAPIView):
         likes_count=Count('likes', distinct=True)
     ).order_by('-created_at')
     filter_backends = [
-        filters.OrderingFilter
+        filters.OrderingFilter,
+        DjangoFilterBackend
     ]
     orderin_fields = ['likes_count']
+    filterset_fields = [
+        'owner__profile',
+        'posted_event'
+    ]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
