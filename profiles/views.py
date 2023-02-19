@@ -21,7 +21,7 @@ class ProfileList(generics.ListAPIView):
         DjangoFilterBackend
     ]
     filterset_fields = [
-        'owner__followig__followed__profile',
+        'owner__following__followed__profile',
         'owner__followed__owner__profile'
     ]
     orderin_fields = [
@@ -45,6 +45,12 @@ class InterestList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = InterestSerializer
     queryset = Interest.objects.all()
+    filter_backends = [
+        DjangoFilterBackend
+    ]
+    filterset_fields = [
+        'profile'
+    ]
 
     def perform_create(self, serializer):
         serializer.save(profile=self.request.user.profile)

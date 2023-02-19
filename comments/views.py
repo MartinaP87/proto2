@@ -38,7 +38,4 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.annotate(
         likes_count=Count('likes', distinct=True)
     ).order_by('-created_at')
-    filter_backends = [
-        filters.OrderingFilter
-    ]
-    orderin_fields = ['likes_count']
+    

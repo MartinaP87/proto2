@@ -101,11 +101,11 @@ class EventGenreList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         if (self.request.user != serializer.validated_data['event'].owner):
             raise ValidationError(
-                "You cannot add a genre to somone else event")
+                "You cannot add a genre to someone else event")
         if serializer.validated_data[
          'event'].category != serializer.validated_data['genre'].category:
             raise ValidationError(
-                "You can't add a genre of a different event's category"
+                "You can't add a genre of a different event category"
             )
         serializer.save()
 

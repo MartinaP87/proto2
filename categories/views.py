@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, generics, permissions
+from rest_framework import generics
 from drf_api_event.permissions import IsAdminOrReadOnly
 from .models import Category, Genre
 from .serializers import CategorySerializer, GenreSerializer
