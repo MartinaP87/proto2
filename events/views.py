@@ -9,7 +9,7 @@ from drf_api_event.permissions import IsGalleryOwnerOrReadOnly
 from .models import Event, Gallery, Photo, EventGenre
 from .serializers import EventSerializer, GallerySerializer
 from .serializers import PhotoSerializer, PhotoDetailSerializer
-from .serializers import EventGenreSerializer, EventGenreDetailSerializer
+from .serializers import EventGenreSerializer
 
 
 class EventList(generics.ListCreateAPIView):
@@ -102,15 +102,16 @@ class EventGenreList(generics.ListCreateAPIView):
         if (self.request.user != serializer.validated_data['event'].owner):
             raise ValidationError(
                 "You cannot add a genre to someone else event")
-        if serializer.validated_data[
-         'event'].category != serializer.validated_data['genre'].category:
-            raise ValidationError(
-                "You can't add a genre of a different event category"
-            )
         serializer.save()
 
 
 class EventGenreDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsEventOwnerOrReadOnly]
-    serializer_class = EventGenreDetailSerializer
+    serializer_class = EventGenreSerializer
     queryset = EventGenre.objects.all()
+
+    def perform_update(self, serializer):
+        if (self.request.user != serializer.validated_data['event'].owner):
+            raise ValidationError(
+                "You cannot add a genre to someone else event")
+        serializer.save()
