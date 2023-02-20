@@ -23,7 +23,7 @@ class EventListViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_logged_in_user_can_create_an_event(self):
-        concert = Category.objects.get(cat_name='concert')
+        Category.objects.get(cat_name='concert')
         self.client.login(username='marla', password='pass')
         response = self.client.post(
             '/events/', {'title': 'a title',
@@ -236,7 +236,7 @@ class PhotoListViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-class EventDetailViewTests(APITestCase):
+class PhotoDetailViewTests(APITestCase):
     def setUp(self):
         marla = User.objects.create_user(username='marla', password='pass')
         peter = User.objects.create_user(username='peter', password='pass')
@@ -335,65 +335,114 @@ class EventGenreListViewTests(APITestCase):
         response = self.client.get('/events/genres/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_event_owner_can_create_an_eventgenre(self):
+        self.client.login(username='marla', password='pass')
+        event = Event.objects.get(pk=1)
+        category = Category.objects.get(pk=1)
+        genre = Genre.objects.create(category=category, gen_name='Rock')
+        response = self.client.post(
+            '/events/genres/', {'genre': genre.id,
+                                'event': event.id})
+        count = EventGenre.objects.count()
+        self.assertEqual(count, 1)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-#     def test_galley_creates_when_an_event_is_created(self):
-#         concert = Category.objects.get(cat_name='concert')
-#         marla = User.objects.get(username='marla')
-#         event2 = Event.objects.create(
-#             owner=marla, title='second title', category=concert,
-#             date='2020-11-22T19:24:58.478641+05:30',
-#             location='second location',  address='second address')
+    def test_user_not_event_owner_cant_create_eventgenre(self):
+        self.client.login(username='marla', password='pass')
+        event = Event.objects.get(pk=2)
+        category = Category.objects.get(pk=1)
+        genre = Genre.objects.create(category=category, gen_name='Rock')
+        response = self.client.post(
+            '/events/genres/', {'genre': genre.id,
+                                'event': event.id})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-#         response = self.client.get('/events/galleries/2/')
-#         count = Gallery.objects.count()
-#         self.assertEqual(count, 2)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_owner_cant_create_eventgenre_if_category_doesnt_match_the_events(
+            self):
+        self.client.login(username='marla', password='pass')
+        event = Event.objects.get(pk=1)
+        category = Category.objects.create(cat_name='movie night')
+        genre = Genre.objects.create(category=category, gen_name='Horror')
+        response = self.client.post(
+            '/events/genres/', {'genre': genre.id,
+                                'event': event.id})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-# class GalleryDetailViewTests(APITestCase):
-#     def setUp(self):
-#         concert = Category.objects.create(cat_name='concert')
-#         marla = User.objects.create_user(username='marla', password='pass')
-#         adam = User.objects.create_user(username='adam', password='pass')
-#         Event.objects.create(
-#             owner=marla, title='a title', category=concert,
-#             date='2020-11-28T19:24:58.478641+05:30',
-#             location='a location',
-#             address='an address')
-#         Event.objects.create(
-#             owner=adam, title='another title',
-#             category=concert,
-#             date='2020-11-28T19:24:58.478641+05:30',
-#             location='another location',
-#             address='another address')
-#         gallery1 = Gallery.objects.get(pk=1)
-#         gallery2 = Gallery.objects.get(pk=2)
+class EventGenreDetailViewTests(APITestCase):
+    def setUp(self):
+        marla = User.objects.create_user(username='marla', password='pass')
+        peter = User.objects.create_user(username='peter', password='pass')
+        concert = Category.objects.create(cat_name='concert')
+        genre1 = Genre.objects.create(category=concert, gen_name='Metal')
+        genre2 = Genre.objects.create(category=concert, gen_name='Folk')
+        event1 = Event.objects.create(
+            owner=marla, title='a title', category=concert,
+            date='2020-11-28T19:24:58.478641+05:30',
+            location='a location', address='an address')
+        event2 = Event.objects.create(
+            owner=peter, title='another title', category=concert,
+            date='2020-11-28T19:24:58.478641+05:30',
+            location='another location', address='another address')
+        eventgenre1 = EventGenre.objects.create(event=event1, genre=genre1)
+        eventgenre2 = EventGenre.objects.create(event=event2, genre=genre2)
 
-#     def test_can_retrieve_gallery_using_valid_id(self):
-#         event1 = Event.objects.get(pk=1)
-#         response = self.client.get('/events/galleries/1/')
-#         self.assertEqual(response.data['posted_event'], event1.title)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_can_retrieve_eventgenre_using_valid_id(self):
+        genre1 = Genre.objects.get(pk=1)
+        response = self.client.get('/events/genres/1/')
+        self.assertEqual(response.data['genre'], genre1.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-#     def test_cant_retrieve_gallery_using_invalid_id(self):
-#         response = self.client.get('/events/galleries/3/')
-#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_cant_retrieve_gallery_using_invalid_id(self):
+        response = self.client.get('/events/genres/3/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-#     def test_user_can_update_own_event_gallery(self):
-#         event1 = Event.objects.get(pk=1)
-#         self.client.login(username='marla', password='pass')
-#         response = self.client.put(
-#             '/events/galleries/1/', {'name': 'a new name',
-#                                      'posted_event': event1.title})
-#         gallery = Gallery.objects.filter(pk=1).first()
-#         self.assertEqual(gallery.name, 'a new name')
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_user_can_update_own_eventgenre(self):
+        self.client.login(username='marla', password='pass')
+        event1 = Event.objects.get(pk=1)
+        genre2 = Genre.objects.get(pk=2)
+        eventgenre1 = EventGenre.objects.get(pk=1)
+        response = self.client.put(
+            '/events/genres/1/', {'event': event1.id,
+                                  'genre': genre2.id})
+        eventgenre1 = EventGenre.objects.filter(pk=1).first()
+        self.assertEqual(eventgenre1.genre, genre2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-#     def test_user_cant_update_another_users_event_category(self):
-#         event2 = Event.objects.get(pk=2)
-#         self.client.login(username='marla', password='pass')
-#         response = self.client.put(
-#             '/events/galleries/2/', {'name': 'a different name',
-#                                      'posted_event': event2.title})
-#         gallery = Gallery.objects.filter(pk=2).first()
-#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_owner_cant_update_eventgenre_if_category_doesnt_match_the_events(
+            self):
+        self.client.login(username='marla', password='pass')
+        event = Event.objects.get(pk=1)
+        category = Category.objects.create(cat_name='movie night')
+        genre = Genre.objects.create(category=category, gen_name='Horror')
+        response = self.client.put(
+            '/events/genres/1/', {'genre': genre.id,
+                                  'event': event.id})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_cant_update_another_users_event_category(self):
+        self.client.login(username='peter', password='pass')
+        event1 = Event.objects.get(pk=1)
+        genre2 = Genre.objects.get(pk=2)
+        eventgenre1 = EventGenre.objects.get(pk=1)
+        response = self.client.put(
+            '/events/genres/1/', {'event': event1.id,
+                                  'genre': genre2.id})
+        eventgenre1 = EventGenre.objects.filter(pk=1).first()
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_can_delete_own_eventgenre(self):
+        eventgenre1 = EventGenre.objects.get(pk=1)
+        self.client.login(username='marla', password='pass')
+        response = self.client.delete('/events/genres/1/')
+        response2 = self.client.get('/events/genres/1/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response2.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_cant_delete_someone_else_eventgenre(self):
+        eventgenre2 = EventGenre.objects.get(pk=2)
+        self.client.login(username='marla', password='pass')
+        response = self.client.delete('/events/genres/2/')
+        response2 = self.client.get('/events/genres/2/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
