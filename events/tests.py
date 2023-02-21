@@ -131,7 +131,6 @@ class GalleryListViewTests(APITestCase):
             owner=marla, title='second title', category=concert,
             date='2020-11-22T19:24:58.478641+05:30',
             location='second location',  address='second address')
-
         response = self.client.get('/events/galleries/2/')
         count = Gallery.objects.count()
         self.assertEqual(count, 2)
