@@ -18,6 +18,7 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['-date']
+        unique_together = ['title', 'date', 'location']
 
     def __str__(self):
         return self.title

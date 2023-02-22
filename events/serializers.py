@@ -10,10 +10,19 @@ class EventSerializer(serializers.ModelSerializer):
     comments_count = serializers.ReadOnlyField()
     interested_count = serializers.ReadOnlyField()
     goings_count = serializers.ReadOnlyField()
+    print(repr)
 
     def get_is_owner(self, obj):
         request = self.context['request']
         return request.user == obj.owner
+    
+    def create(self, validated_data):
+        try:
+            return super().create(validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError({
+                'detail': 'This event already exists!'
+            })
 
     class Meta:
         model = Event
