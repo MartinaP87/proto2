@@ -30,6 +30,13 @@ class GenreList(generics.ListCreateAPIView):
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
 
+    filter_backends = [
+        DjangoFilterBackend
+    ]
+    filterset_fields = [
+        'category'
+    ]
+
     def perform_create(self, serializer):
         if self.request.user.is_superuser:
             return serializer.save()

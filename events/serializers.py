@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Event, Gallery, Photo, EventGenre
 from categories.models import Category
+from buttons.models import Interested, Going
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -8,14 +9,35 @@ class EventSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     is_owner = serializers.SerializerMethodField()
     comments_count = serializers.ReadOnlyField()
+    interested_id = serializers.SerializerMethodField()
     interested_count = serializers.ReadOnlyField()
+    goings_id = serializers.SerializerMethodField()
     goings_count = serializers.ReadOnlyField()
-    print(repr)
+    profile_id = serializers.ReadOnlyField(source='owner.profile.id')
+    profile_image = serializers.ReadOnlyField(source='owner.profile.image.url')
 
     def get_is_owner(self, obj):
         request = self.context['request']
         return request.user == obj.owner
-    
+
+    def get_interested_id(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            interested = Interested.objects.filter(
+                owner=user, posted_event=obj
+            ).first()
+            return interested.id if interested else None
+        return None
+
+    def get_goings_id(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            goings = Going.objects.filter(
+                owner=user, posted_event=obj
+            ).first()
+            return goings.id if goings else None
+        return None
+
     def create(self, validated_data):
         try:
             return super().create(validated_data)
@@ -30,7 +52,9 @@ class EventSerializer(serializers.ModelSerializer):
             'id', 'owner', 'category', 'title', 'date',
             'location', 'address', 'created_at', 'updated_at',
             'content', 'image', 'is_owner', 'event_genres',
-            'comments_count', 'interested_count', 'goings_count'
+            'comments_count', 'interested_id', 'interested_count',
+            'goings_id', 'goings_count',
+            'profile_id', 'profile_image'
         ]
 
 
@@ -52,6 +76,8 @@ class GallerySerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     is_owner = serializers.SerializerMethodField()
+    profile_id = serializers.ReadOnlyField(source='owner.profile.id')
+    profile_image = serializers.ReadOnlyField(source='owner.profile.image.url')
 
     def validate_image(self, value):
         if value.size > 1024 * 1024 * 2:
@@ -76,7 +102,8 @@ class PhotoSerializer(serializers.ModelSerializer):
         model = Photo
         fields = [
             'id', 'gallery', 'owner', 'title',
-            'created_at', 'image', 'is_owner'
+            'created_at', 'image', 'is_owner',
+            'profile_id', 'profile_image'
         ]
 
 
